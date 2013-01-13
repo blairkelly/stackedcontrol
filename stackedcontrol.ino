@@ -12,8 +12,10 @@ int usbCommandVal = 0;
 boolean USBcommandExecuted = true;
 String usbCommand = "";
 
-int WHEEL = 0;       //analogue-in reading
-int THROTTLE;    //analogue-in reading
+int WHEEL = 0;
+int THROTTLE;
+int REVERSE = 0;
+int FORWARD = 0;
 
 //wheel
 int wheelPWMctrDefault = 1500;
@@ -31,10 +33,12 @@ int Wheel_uS = wheelPWMctrDefault;     // channel 1.  Ana In Ch.0 uS var - wheel
 int Throttle_uS = thrPWMctr;    // channel 2 Ana In Ch.1 uS var - throttle
 
 int xbst = 7500; //xbox stick tolerance number. Lauszus' default was 7500.
-int asdz = xbst; //analog stick dead zone, set below.  !!TEMP set here
 int xbminmax = 32200; //xbox guideMin/Max value.
 int asmin = xbminmax * -1;  //analog stick minimum (to send to mapToPwm function)
 int asmax = xbminmax;       //analog stick maximum (to send to mapToPwm function)
+int xbpedalminmax = 255;
+int apmin = xbpedalminmax * -1;
+int apmax = xbpedalminmax;
 
 void setup() {
   Serial.begin(115200);
@@ -44,16 +48,6 @@ void setup() {
     while(1); //halt
   }  
   Serial.print(F("\r\nXBOX USB Library Started. Thanks Kristian Lauszus!"));
-}
-
-void delegate(String theCommand, int theCommandVal) {
-  if (theCommand.equals("x")) {
-      //rumble x
-  } else if (theCommand.equals("y")) {
-      //rumble y
-  } else if (theCommand.equals("z")) {
-      //rumble z
-  }
 }
 
 int mapToPWM(int guideReading, int guideCentre, int guideMin, int guideMax, int deadZoneWidth, int pwmCentre, int pwmMin, int pwmMax)
@@ -93,7 +87,23 @@ int mapToPWM(int guideReading, int guideCentre, int guideMin, int guideMax, int 
   else {
     thePWM = pwmCentre;
   }
+//  Serial.print("guideReading: ");
+//  Serial.print(guideReading);
+//  Serial.print(", thePWM: ");
+//  Serial.print(thePWM);
+//  Serial.println(" ");
+//  delay(666);
   return(thePWM);
+}
+
+void delegate(String theCommand, int theCommandVal) {
+  if (theCommand.equals("x")) {
+      //rumble x
+  } else if (theCommand.equals("y")) {
+      //rumble y
+  } else if (theCommand.equals("z")) {
+      //rumble z
+  }
 }
 
 void serialListen()
@@ -134,6 +144,16 @@ void scancontroller() {
   Usb.Task();
   if(Xbox.Xbox360Connected) {
     WHEEL = Xbox.getAnalogHat(RightHatX);
+    //mapToPWM(guideReading, guideCentre, guideMin, guideMax, deadZoneWidth, pwmCentre, pwmMin, pwmMax);
+    //Wheel_uS = mapToPWM(WHEEL, 0, asmin, asmax, xbst, wheelPWMctr, wheelPWMmin, wheelPWMmax);
+    
+    REVERSE = Xbox.getButton(L2) * -1;
+    FORWARD = Xbox.getButton(R2);
+    if(REVERSE < 0) {
+      Throttle_uS = mapToPWM(REVERSE, 0, apmin, apmax, 0, thrPWMctr, thrPWMmin, thrPWMmax);
+    } else {
+      Throttle_uS = mapToPWM(FORWARD, 0, apmin, apmax, 0, thrPWMctr, thrPWMmin, thrPWMmax);
+    }
     
     //Xbox.setRumbleOn(Xbox.getButton(L2),Xbox.getButton(R2)); //to rumble!
     //if(Xbox.getAnalogHat(LeftHatX) > xbst || Xbox.getAnalogHat(LeftHatX) < -xbst || Xbox.getAnalogHat(LeftHatY) > xbst || Xbox.getAnalogHat(LeftHatY) < -xbst || Xbox.getAnalogHat(RightHatX) > xbst || Xbox.getAnalogHat(RightHatX) < -xbst || Xbox.getAnalogHat(RightHatY) > xbst || Xbox.getAnalogHat(RightHatY) < -xbst) {
@@ -233,10 +253,5 @@ void scancontroller() {
 void loop() {
   serialListen();
   scancontroller();
-  
-  //mapToPWM(guideReading, guideCentre, guideMin, guideMax, deadZoneWidth, pwmCentre, pwmMin, pwmMax);
-  Wheel_uS = mapToPWM(WHEEL, 0, asmin, asmax, asdz, wheelPWMctr, wheelPWMmin, wheelPWMmax);
-  //Throttle_uS = mapToPWM(THROTTLE, 448, 355, 653, 3, thrPWMctr, thrPWMmin, thrPWMmax);
-  
   delay(1);
 }
