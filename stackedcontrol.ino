@@ -1,12 +1,15 @@
-
-
-
-
 #include <XBOXUSB.h>
 USB Usb;
 XBOXUSB Xbox(&Usb);
 
 //variables
+int lcd = 77; //live control delay. Milliseconds.
+unsigned long lcdd = millis() + lcd; //live control delay deadline
+boolean myflag = false;
+String ctype = "xbee"; //controller type
+unsigned long theTime = millis();
+int afterStartupTime = 1366; //after this duration, run runOnceAfterStartupTime stuff.
+boolean roast = false;
 String usbInstructionDataString = "";
 int usbCommandVal = 0;
 boolean USBcommandExecuted = true;
@@ -41,8 +44,8 @@ int apmin = xbpedalminmax * -1;
 int apmax = xbpedalminmax;
 
 void setup() {
-  Serial.begin(115200);
-
+  Serial.begin(57600);
+  Serial1.begin(57600);
   if (Usb.Init() == -1) {
     Serial.print(F("\r\nOSC did not start"));
     while(1); //halt
@@ -96,13 +99,23 @@ int mapToPWM(int guideReading, int guideCentre, int guideMin, int guideMax, int 
   return(thePWM);
 }
 
-void delegate(String theCommand, int theCommandVal) {
-  if (theCommand.equals("x")) {
+void delegate(String cmd, int cmdval) {
+  if (cmd.equals("x")) {
       //rumble x
-  } else if (theCommand.equals("y")) {
+  } else if (cmd.equals("y")) {
       //rumble y
-  } else if (theCommand.equals("z")) {
+  } else if (cmd.equals("z")) {
       //rumble z
+  }
+  
+  if(cmd.equals("S")) {
+    if(cmdval == 0) {
+      //Xbox.setLedOn(LED1);
+      //digitalWrite(13, LOW);
+    } else if (cmdval == 1) {
+      //Xbox.setLedOn(LED2);
+      //digitalWrite(13, HIGH);
+    }
   }
 }
 
@@ -110,8 +123,8 @@ void serialListen()
 {
   char arduinoSerialData; //FOR CONVERTING BYTE TO CHAR. here is stored information coming from the arduino.
   String currentChar = "";
-  if(Serial.available() > 0) {
-    arduinoSerialData = char(Serial.read());   //BYTE TO CHAR.
+  if(Serial1.available() > 0) {
+    arduinoSerialData = char(Serial1.read());   //BYTE TO CHAR.
     currentChar = (String)arduinoSerialData; //incoming data equated to c.
     if(!currentChar.equals("1") && !currentChar.equals("2") && !currentChar.equals("3") && !currentChar.equals("4") && !currentChar.equals("5") && !currentChar.equals("6") && !currentChar.equals("7") && !currentChar.equals("8") && !currentChar.equals("9") && !currentChar.equals("0") && !currentChar.equals(".")) { 
       //the character is not a number, not a value to go along with a command,
@@ -125,7 +138,8 @@ void serialListen()
       if((USBcommandExecuted == false) && (arduinoSerialData == 13)) {
         delegate(usbCommand, usbCommandVal);
         USBcommandExecuted = true;
-        //blinkit();
+        //Serial.print(usbCommand);
+        //Serial.println(usbCommandVal);
       }
       if((arduinoSerialData != 13) && (arduinoSerialData != 10)) {
         usbCommand = currentChar;
@@ -145,7 +159,7 @@ void scancontroller() {
   if(Xbox.Xbox360Connected) {
     WHEEL = Xbox.getAnalogHat(RightHatX);
     //mapToPWM(guideReading, guideCentre, guideMin, guideMax, deadZoneWidth, pwmCentre, pwmMin, pwmMax);
-    //Wheel_uS = mapToPWM(WHEEL, 0, asmin, asmax, xbst, wheelPWMctr, wheelPWMmin, wheelPWMmax);
+    Wheel_uS = mapToPWM(WHEEL, 0, asmin, asmax, xbst, wheelPWMctr, wheelPWMmin, wheelPWMmax);
     
     REVERSE = Xbox.getButton(L2) * -1;
     FORWARD = Xbox.getButton(R2);
@@ -220,8 +234,16 @@ void scancontroller() {
         //Serial.print(F(" - R1"));
       }
       if(Xbox.getButton(XBOX)) {
-        Xbox.setLedMode(ROTATING);
-        Serial.print(F("Wings Up"));        
+        //Xbox.setLedMode(ROTATING);
+        //Serial.print(F("Wings Up"));
+        pc("S", 5485, true);
+        if(!myflag) {
+          Xbox.setLedOn(LED2);
+          myflag = true;
+        } else {
+          Xbox.setLedOn(LED1);
+          myflag = false;
+        }       
       }
 
       if(Xbox.getButton(A)) {
@@ -250,8 +272,34 @@ void scancontroller() {
   }
 }
 
+void pc(String cmd, int cmdval, boolean last) {
+  Serial1.print(cmd);
+  if(last) {
+    Serial1.println(cmdval);
+  } else {
+    Serial1.print(cmdval);
+  }
+}
+void sendcoms() {
+  //enumerates which method to use to send instructions to the vehicle
+  //depends on value of ctype
+  if(ctype == "xbee") {
+    if(millis() > lcdd) { //lcdd = live control delay deadline
+      pc("W", Wheel_uS, false);
+      pc("T", Throttle_uS, true);
+      lcdd = millis() + lcd;
+    }
+  }
+}
+
 void loop() {
   serialListen();
   scancontroller();
-  delay(1);
+  sendcoms();
+  if(!roast) {
+    if(millis() > afterStartupTime) {
+      Xbox.setLedOn(LED1);
+      roast = true;
+    }
+  }
 }
