@@ -3,7 +3,7 @@ USB Usb;
 XBOXUSB Xbox(&Usb);
 
 //variables
-int lcd = 77; //live control delay. Milliseconds.
+int lcd = 44; //live control delay. Milliseconds.
 unsigned long lcdd = millis() + lcd; //live control delay deadline
 boolean myflag = false;
 String ctype = "xbee"; //controller type
@@ -42,6 +42,10 @@ int asmax = xbminmax;       //analog stick maximum (to send to mapToPwm function
 int xbpedalminmax = 255;
 int apmin = xbpedalminmax * -1;
 int apmax = xbpedalminmax;
+int xboxrma = 255; //xbox rumble max amplitude
+int rma = xboxrma; //rumble max amplitude
+int arbitraryffbnum = 244; //what's the largest amplitude I would see from the adxl335 accelerometer, on the analog spectrum -> 0-1023 ?
+int highestravalue = 3; 
 
 void setup() {
   Serial.begin(57600);
@@ -100,12 +104,23 @@ int mapToPWM(int guideReading, int guideCentre, int guideMin, int guideMax, int 
 }
 
 void delegate(String cmd, int cmdval) {
-  if (cmd.equals("x")) {
-      //rumble x
-  } else if (cmd.equals("y")) {
-      //rumble y
-  } else if (cmd.equals("z")) {
-      //rumble z
+  if (cmd.equals("<") || cmd.equals(">") || cmd.equals("^")) {
+      if(cmdval > arbitraryffbnum) { arbitraryffbnum = cmdval; digitalWrite(13, HIGH); }
+      int ra = (float(cmdval) / float(arbitraryffbnum)) * float(rma);
+      //if(ra < 3) { ra = 3; };
+      //if(ra > highestravalue) { highestravalue = ra; };
+      //Serial.println(highestravalue);
+      //Xbox.setRumbleOn(highestravalue,highestravalue);
+      
+      
+      
+      //if (cmd.equals("<")) {
+        //rumble x
+      //} else if (cmd.equals(">")) {
+        //rumble y
+      //} else if (cmd.equals("^")) {
+        //rumble z
+      //}
   }
   
   if(cmd.equals("S")) {
@@ -236,13 +251,15 @@ void scancontroller() {
       if(Xbox.getButton(XBOX)) {
         //Xbox.setLedMode(ROTATING);
         //Serial.print(F("Wings Up"));
-        pc("S", 5485, true);
+        pc("S", 5485);
         if(!myflag) {
           Xbox.setLedOn(LED2);
           myflag = true;
+          Xbox.setRumbleOn(50,50);
         } else {
           Xbox.setLedOn(LED1);
           myflag = false;
+          Xbox.setRumbleOn(0,0);
         }       
       }
 
@@ -251,9 +268,11 @@ void scancontroller() {
       }
       if(Xbox.getButton(B)) {
         //Serial.print(F(" - B"));
+        wheelPWMctr = wheelPWMctr + 5;
       }
       if(Xbox.getButton(X)) {
         //Serial.print(F(" - X"));
+        wheelPWMctr = wheelPWMctr - 5;
       }
       if(Xbox.getButton(Y)) {
         //Serial.print(F(" - Y"));
@@ -272,21 +291,17 @@ void scancontroller() {
   }
 }
 
-void pc(String cmd, int cmdval, boolean last) {
+void pc(String cmd, int cmdval) {
   Serial1.print(cmd);
-  if(last) {
-    Serial1.println(cmdval);
-  } else {
-    Serial1.print(cmdval);
-  }
+  Serial1.println(cmdval);
 }
 void sendcoms() {
   //enumerates which method to use to send instructions to the vehicle
   //depends on value of ctype
   if(ctype == "xbee") {
     if(millis() > lcdd) { //lcdd = live control delay deadline
-      pc("W", Wheel_uS, false);
-      pc("T", Throttle_uS, true);
+      pc("W", Wheel_uS);
+      pc("T", Throttle_uS);
       lcdd = millis() + lcd;
     }
   }
