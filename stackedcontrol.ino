@@ -1,3 +1,5 @@
+//Stacked Controller
+
 #include <XBOXUSB.h>
 USB Usb;
 XBOXUSB Xbox(&Usb);
@@ -107,12 +109,8 @@ void delegate(String cmd, int cmdval) {
   if (cmd.equals("<") || cmd.equals(">") || cmd.equals("^")) {
       if(cmdval > arbitraryffbnum) { arbitraryffbnum = cmdval; digitalWrite(13, HIGH); }
       int ra = (float(cmdval) / float(arbitraryffbnum)) * float(rma);
-      //if(ra < 3) { ra = 3; };
-      //if(ra > highestravalue) { highestravalue = ra; };
-      //Serial.println(highestravalue);
-      //Xbox.setRumbleOn(highestravalue,highestravalue);
-      
-      
+
+      Xbox.setRumbleOn(ra,ra);
       
       //if (cmd.equals("<")) {
         //rumble x
@@ -253,13 +251,17 @@ void scancontroller() {
         //Serial.print(F("Wings Up"));
         pc("S", 5485);
         if(!myflag) {
-          Xbox.setLedOn(LED2);
-          myflag = true;
-          Xbox.setRumbleOn(50,50);
+          if(Xbox.Xbox360Connected) {
+            //Xbox.setLedOn(LED2);
+            myflag = true;
+            Xbox.setRumbleOn(25,50);
+          }
         } else {
-          Xbox.setLedOn(LED1);
-          myflag = false;
-          Xbox.setRumbleOn(0,0);
+          if(Xbox.Xbox360Connected) {
+            //Xbox.setLedOn(LED1);
+            myflag = false;
+            Xbox.setRumbleOn(0,0);
+          }
         }       
       }
 
