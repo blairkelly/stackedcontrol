@@ -19,7 +19,7 @@ void sendcoms() {
 void delegate(String cmd, int cmdval) {
   
   if (cmd.equals("<") || cmd.equals(">") || cmd.equals("^")) {
-      handlerumbling(cmd, cmdval);
+      setrumble(cmd, cmdval);
   }
   
   if(cmd.equals("S")) {
@@ -50,8 +50,8 @@ void serialListen()
       if((USBcommandExecuted == false) && (arduinoSerialData == 13)) {
         delegate(usbCommand, usbCommandVal);
         USBcommandExecuted = true;
-        Serial.print(usbCommand);
-        Serial.println(usbCommandVal);
+        //Serial.print(usbCommand);
+        //Serial.println(usbCommandVal);
       }
       if((arduinoSerialData != 13) && (arduinoSerialData != 10)) {
         usbCommand = currentChar;
