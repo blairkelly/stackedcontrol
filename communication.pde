@@ -6,8 +6,7 @@ void pc(String cmd, int cmdval) {
 
 void sendcoms() {
   //enumerates which method to use to send instructions to the vehicle
-  //depends on value of ctype
-  if(ctype == "xbee") {
+  if(!ppmgo) {
     if(millis() > lcdd) { //lcdd = live control delay deadline
       pc("W", Wheel_uS);
       pc("T", Throttle_uS);

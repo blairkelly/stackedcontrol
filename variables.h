@@ -1,4 +1,5 @@
 //variables
+int cstate = 1;
 
 String usbInstructionDataString = "";
 int usbCommandVal = 0;
@@ -8,7 +9,7 @@ String usbCommand = "";
 int lcd = 22; //live control delay. Milliseconds.
 unsigned long lcdd = millis() + lcd; //live control delay deadline
 boolean myflag = false;
-String ctype = "xbee"; //controller type
+
 unsigned long theTime = millis();
 int afterStartupTime = 1366; //after this duration, run runOnceAfterStartupTime stuff.
 boolean roast = false;
@@ -17,6 +18,9 @@ int WHEEL = 0;
 int THROTTLE;
 int REVERSE = 0;
 int FORWARD = 0;
+int RUDDER = 0;
+int AILERON = 0;
+int ELEVATOR = 0;
 
 //wheel
 int wheelPWMctrDefault = 1500;
@@ -32,6 +36,17 @@ int thrPWMmax = thrPWMmaxDefault; //set below  !!TEMP equal to default max
 
 int Wheel_uS = wheelPWMctrDefault;     // channel 1.  Ana In Ch.0 uS var - wheel
 int Throttle_uS = thrPWMctr;    // channel 2 Ana In Ch.1 uS var - throttle
+int Rudder_uS;
+int Elevator_uS;
+int Aileron_uS;
+
+//defaults based on dx6i
+int stickCentre = 1512;
+int rudCentre = stickCentre;
+int ailCentre = stickCentre;
+int eleCentre = stickCentre;
+int stickLow = 1108;
+int stickHigh = 1930;
 
 int xbst = 7500; //xbox stick tolerance number. Lauszus' default was 7500.
 int xbminmax = 32200; //xbox guideMin/Max value.
@@ -54,6 +69,13 @@ float ffbcstep = ffbstep;  //ffb current step size
 int ffbmincstep = 4; //smallest allowed step.
 float ffbxstep = 0.5; //each time ffb steps, the size of the step is reduced.
 boolean ffbfirstpass = false;
+
+//PPM encoding
+boolean ppmgo = false;
+int outPinPPM = 5;
+int Fixed_uS = 10;       // PPM frame fixed LOW phase. was 300. then 30.
+int FixedDX_uS = 300;       // PPM frame fixed LOW phase. was 300. then 30.
+
 
 mapToPWM mTP;
 //inSerialCmd sCmd;
