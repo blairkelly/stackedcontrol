@@ -19,7 +19,7 @@ void scancontroller() {
         REVERSE = Xbox.getButtonPress(0, L2) * -1;
         FORWARD = Xbox.getButtonPress(0, R2);
         if(REVERSE < 0) {
-          Throttle_uS = mTP.mtp(REVERSE, 0, apmin, apmax, 0, thrPWMctr, thrPWMmin, thrPWMmax, 0, 0);
+          Throttle_uS = mTP.mtp(REVERSE, 0, -apmax, apmax, 0, thrPWMctr, thrPWMmin, thrPWMmax, 0, 0);
         } else {
           Throttle_uS = mTP.mtp(FORWARD, 0, apmin, apmax, 0, thrPWMctr, thrPWMmin, thrPWMmax, 0, 0);
         }
@@ -30,6 +30,15 @@ void scancontroller() {
         if(Xbox.getButtonClick(0, X)) {
           //Serial.print(F(" - X"));
           wheelPWMctr = wheelPWMctr - 2;
+        }
+        boolean printme = true;
+        if(printme && (printtime < millis())) {
+          Serial.print("THROTTLE: ");
+          Serial.print(THROTTLE);
+          Serial.print(", Throttle_uS: ");
+          Serial.print(Throttle_uS);
+          Serial.println(" ");
+          printtime = millis() + printdelay;
         }
       } else if (cstate == 3) {
         //quadcopter
@@ -53,16 +62,6 @@ void scancontroller() {
         Rudder_uS = mTP.mtp(RUDDER, 0, asmin, asmax, xbst, rudCentre, stickHigh, stickLow, quadpow, 0);
         Elevator_uS = mTP.mtp(ELEVATOR, 0, asmin, asmax, xbst, eleCentre, stickLow, stickHigh, quadpow, 0.80);
         Aileron_uS = mTP.mtp(AILERON, 0, asmin, asmax, xbst, ailCentre, stickHigh, stickLow, quadpow, 0.80);
-
-        boolean printme = true;
-        if(printme && (printtime < millis())) {
-          Serial.print("THROTTLE: ");
-          Serial.print(THROTTLE);
-          Serial.print(", Throttle_uS: ");
-          Serial.print(Throttle_uS);
-          Serial.println(" ");
-          printtime = millis() + printdelay;
-        }
 
         if(!ppmadjust) {
           if(Xbox.getButtonClick(0, B)) {
