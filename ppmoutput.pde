@@ -48,46 +48,46 @@ void ppmoutput() { // PPM output sub
 
     // Channel 1
     // Throttle
-    digitalWrite(outPinPPM, LOW);
+    digitalWrite(outPinPPM, phase1);
     delayMicroseconds(FixedDX_uS);    // Hold
-    digitalWrite(outPinPPM, HIGH);
+    digitalWrite(outPinPPM, phase2);
     delayMicroseconds(Throttle_uS);
 
     // Channel 2 - Aileron
-    digitalWrite(outPinPPM, LOW);
+    digitalWrite(outPinPPM, phase1);
     delayMicroseconds(FixedDX_uS);    // Hold
-    digitalWrite(outPinPPM, HIGH);
+    digitalWrite(outPinPPM, phase2);
     //delayMicroseconds(highLow_uS);
     delayMicroseconds(Aileron_uS);  
     
     // Channel 3 - Elevator
-    digitalWrite(outPinPPM, LOW);
+    digitalWrite(outPinPPM, phase1);
     delayMicroseconds(FixedDX_uS);    // Hold
-    digitalWrite(outPinPPM, HIGH);
+    digitalWrite(outPinPPM, phase2);
     delayMicroseconds(Elevator_uS);
     
     // Channel 4 - Rudder 
-    digitalWrite(outPinPPM, LOW);
+    digitalWrite(outPinPPM, phase1);
     delayMicroseconds(FixedDX_uS);    // Hold
-    digitalWrite(outPinPPM, HIGH);
+    digitalWrite(outPinPPM, phase2);
     delayMicroseconds(Rudder_uS);
     
     // Channel 5 - NoneSoFar
-    digitalWrite(outPinPPM, LOW);
+    digitalWrite(outPinPPM, phase1);
     delayMicroseconds(FixedDX_uS);    // Hold
-    digitalWrite(outPinPPM, HIGH);
+    digitalWrite(outPinPPM, phase2);
     delayMicroseconds(stickCentre);   
 
     // Channel 6 - NoneSoFar
-    digitalWrite(outPinPPM, LOW);
+    digitalWrite(outPinPPM, phase1);
     delayMicroseconds(FixedDX_uS);    // Hold
-    digitalWrite(outPinPPM, HIGH);
+    digitalWrite(outPinPPM, phase2);
     delayMicroseconds(stickCentre);  //unused presently
 
     // Synchro pulse
-    digitalWrite(outPinPPM, LOW);
+    digitalWrite(outPinPPM, phase1);
     delayMicroseconds(FixedDX_uS);    // Hold
-    digitalWrite(outPinPPM, HIGH);  // Start Synchro pulse
+    digitalWrite(outPinPPM, phase2);  // Start Synchro pulse
   }
 
   //// Channel 7 - 

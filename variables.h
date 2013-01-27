@@ -1,12 +1,15 @@
 //variables
 int cstate = 1;
 
+unsigned long printtime = millis();
+int printdelay = 299;
+
 String usbInstructionDataString = "";
 int usbCommandVal = 0;
 boolean USBcommandExecuted = true;
 String usbCommand = "";
 
-int lcd = 22; //live control delay. Milliseconds.
+int lcd = 21; //live control delay. Milliseconds.
 unsigned long lcdd = millis() + lcd; //live control delay deadline
 boolean myflag = false;
 
@@ -41,26 +44,28 @@ int Elevator_uS;
 int Aileron_uS;
 
 //defaults based on dx6i
-int stickCentre = 1512;
-int rudCentre = stickCentre;
-int ailCentre = stickCentre;
-int eleCentre = stickCentre;
-int stickLow = 1108;
-int stickHigh = 1930;
+int stickCentre = 1503;
+int rudCentre = 1503;
+int ailCentre = 1503;
+int eleCentre = 1503;
+int stickLow = 1096;
+int stickHigh = 1919;
+
+float quadpow = 2.0;
 
 int xbst = 7500; //xbox stick tolerance number. Lauszus' default was 7500.
-int xbminmax = 32200; //xbox guideMin/Max value.
+int xbminmax = 32000; //xbox guideMin/Max value.
 int asmin = xbminmax * -1;  //analog stick minimum (to send to mapToPwm function)
 int asmax = xbminmax;       //analog stick maximum (to send to mapToPwm function)
 int xbpedalminmax = 255;
-int apmin = xbpedalminmax * -1;
+int apmin = 0;
 int apmax = xbpedalminmax;
 int xboxrma = 255; //xbox rumble max amplitude
 int rma = xboxrma; //rumble max amplitude
 int affbnum = 140; //what's the largest amplitude I would see from the adxl335 accelerometer, on the analog spectrum -> 0-1023 ?
 int cra = 0; //current rumble amplitude.
 unsigned long ffbsdd = millis(); //ffb step down deadline
-int ffbstepmaxdelay = 39; //milliseconds to let current rumble setting play before reducing amplitude
+int ffbstepmaxdelay = 27; //milliseconds to let current rumble setting play before reducing amplitude
 int ffbstepmindelay = 3; //milliseconds to let current rumble setting play before reducing amplitude
 int ffbstepdr = 6;  //how much to reduce the step delay
 int ffbpd = ffbstepmaxdelay;  //force feedback present step delay
@@ -74,8 +79,12 @@ boolean ffbfirstpass = false;
 boolean ppmgo = false;
 int outPinPPM = 5;
 int Fixed_uS = 10;       // PPM frame fixed LOW phase. was 300. then 30.
-int FixedDX_uS = 300;       // PPM frame fixed LOW phase. was 300. then 30.
+int FixedDX_uS = 1;       // PPM frame fixed LOW phase. was 300. then 30.
 
 
 mapToPWM mTP;
 //inSerialCmd sCmd;
+
+boolean ppmadjust = false;
+boolean phase1 = LOW;
+boolean phase2 = HIGH;
