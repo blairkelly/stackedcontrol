@@ -19,6 +19,15 @@ void delegate(String cmd, int cmdval) {
   
   if (cmd.equals("<") || cmd.equals(">") || cmd.equals("^")) {
       //setrumble(cmd, cmdval);
+    if (cmd.equals("<")) {
+      //setrumble(cmd, cmdval);
+      accelX = cmdval;
+    } else if (cmd.equals(">")) {
+      accelY = cmdval;
+    } else if (cmd.equals("^")) {
+      accelZ = cmdval;
+    }
+
   }
   
   if(cmd.equals("S")) {
@@ -35,10 +44,10 @@ void serialListen()
   char arduinoSerialData; //FOR CONVERTING BYTE TO CHAR. here is stored information coming from the arduino.
   String currentChar = "";
   if(Serial1.available() > 0) {
-    Serial.println("high");
+    //sbyte = Serial1.read();
     arduinoSerialData = char(Serial1.read());   //BYTE TO CHAR.
     currentChar = (String)arduinoSerialData; //incoming data equated to c.
-
+    sbuffer += arduinoSerialData;
     if(!currentChar.equals("1") && !currentChar.equals("2") && !currentChar.equals("3") && !currentChar.equals("4") && !currentChar.equals("5") && !currentChar.equals("6") && !currentChar.equals("7") && !currentChar.equals("8") && !currentChar.equals("9") && !currentChar.equals("0") && !currentChar.equals(".")) { 
       //the character is not a number, not a value to go along with a command,
       //so it is probably a command.
@@ -48,15 +57,18 @@ void serialListen()
         usbInstructionDataString.toCharArray(charBuf, 30);
         usbCommandVal = atoi(charBuf);
       }
-      if((USBcommandExecuted == false) && (arduinoSerialData == 13)) {
-        //String newt = usbCommand + usbCommandVal;
-        //Serial.println(newt);
+      if((USBcommandExecuted == false) && ((arduinoSerialData == 13) || currentChar.equals("&"))) {
         delegate(usbCommand, usbCommandVal);
         USBcommandExecuted = true;
+        if(arduinoSerialData == 13) {
+          //carriage return received
+          Serial.print(sbuffer);  //doesn't need LN because there's already a carriage return in it.
+          sbuffer = "";
+        }
         //Serial.print(usbCommand);
         //Serial.println(usbCommandVal);
       }
-      if((arduinoSerialData != 13) && (arduinoSerialData != 10)) {
+      if(!currentChar.equals("&") && (arduinoSerialData != 13) && (arduinoSerialData != 10)) {
         usbCommand = currentChar;
       }
       usbInstructionDataString = "";

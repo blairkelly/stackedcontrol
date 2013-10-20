@@ -4,6 +4,7 @@ int cstate = 1;
 unsigned long printtime = millis();
 int printdelay = 299;
 
+String sbuffer = "";
 String usbInstructionDataString = "";
 int usbCommandVal = 0;
 boolean USBcommandExecuted = true;
@@ -88,3 +89,8 @@ mapToPWM mTP;
 boolean ppmadjust = false;
 boolean phase1 = LOW;
 boolean phase2 = HIGH;
+
+//accelerometer
+int accelX = 340;
+int accelY = 353;
+int accelZ = 406;
