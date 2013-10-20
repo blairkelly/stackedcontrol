@@ -5,6 +5,7 @@ unsigned long printtime = millis();
 int printdelay = 299;
 
 String sbuffer = "";
+boolean nts = false;
 String usbInstructionDataString = "";
 int usbCommandVal = 0;
 boolean USBcommandExecuted = true;
@@ -19,7 +20,9 @@ int afterStartupTime = 1366; //after this duration, run runOnceAfterStartupTime 
 boolean roast = false;
 
 int WHEEL = 0;
-int THROTTLE;
+int lastwheel = WHEEL;
+int THROTTLE = 0;
+int lastthrottle = THROTTLE;
 int REVERSE = 0;
 int FORWARD = 0;
 int RUDDER = 0;

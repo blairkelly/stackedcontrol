@@ -17,14 +17,14 @@ void sendcoms() {
 
 void delegate(String cmd, int cmdval) {
   
-  if (cmd.equals("<") || cmd.equals(">") || cmd.equals("^")) {
+  if (cmd.equals("x") || cmd.equals("y") || cmd.equals("z")) {
       //setrumble(cmd, cmdval);
-    if (cmd.equals("<")) {
+    if (cmd.equals("x")) {
       //setrumble(cmd, cmdval);
       accelX = cmdval;
-    } else if (cmd.equals(">")) {
+    } else if (cmd.equals("y")) {
       accelY = cmdval;
-    } else if (cmd.equals("^")) {
+    } else if (cmd.equals("z")) {
       accelZ = cmdval;
     }
 
@@ -39,6 +39,17 @@ void delegate(String cmd, int cmdval) {
   }
 }
 
+void sendsbuffer() {
+  String lastchar = sbuffer.substring(sbuffer.length() - 1, sbuffer.length());
+  if(lastchar != "&") {
+    sbuffer += "&";
+  }
+  sbuffer = sbuffer + "t" + (String)millis();
+  Serial.println(sbuffer);
+  sbuffer = "";
+  nts = false;
+}
+
 void serialListen()
 {
   char arduinoSerialData; //FOR CONVERTING BYTE TO CHAR. here is stored information coming from the arduino.
@@ -47,7 +58,9 @@ void serialListen()
     //sbyte = Serial1.read();
     arduinoSerialData = char(Serial1.read());   //BYTE TO CHAR.
     currentChar = (String)arduinoSerialData; //incoming data equated to c.
-    sbuffer += arduinoSerialData;
+    if ((arduinoSerialData != 13) && (arduinoSerialData != 10)) {
+      sbuffer += currentChar;
+    }
     if(!currentChar.equals("1") && !currentChar.equals("2") && !currentChar.equals("3") && !currentChar.equals("4") && !currentChar.equals("5") && !currentChar.equals("6") && !currentChar.equals("7") && !currentChar.equals("8") && !currentChar.equals("9") && !currentChar.equals("0") && !currentChar.equals(".")) { 
       //the character is not a number, not a value to go along with a command,
       //so it is probably a command.
@@ -62,8 +75,8 @@ void serialListen()
         USBcommandExecuted = true;
         if(arduinoSerialData == 13) {
           //carriage return received
-          Serial.print(sbuffer);  //doesn't need LN because there's already a carriage return in it.
-          sbuffer = "";
+          //add appropriate data.
+          nts = true;
         }
         //Serial.print(usbCommand);
         //Serial.println(usbCommandVal);

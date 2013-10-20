@@ -19,9 +19,16 @@ void scancontroller() {
         REVERSE = Xbox.getButtonPress(0, L2) * -1;
         FORWARD = Xbox.getButtonPress(0, R2);
         if(REVERSE < 0) {
+          THROTTLE = REVERSE;
           Throttle_uS = mTP.mtp(REVERSE, 0, -apmax, apmax, 0, thrPWMctr, thrPWMmin, thrPWMmax, 0, 0);
         } else {
+          THROTTLE = FORWARD;
           Throttle_uS = mTP.mtp(FORWARD, 0, apmin, apmax, 0, thrPWMctr, thrPWMmin, thrPWMmax, 0, 0);
+        }
+        if(THROTTLE != lastthrottle) {
+          sbuffer = "T" + (String)THROTTLE + "&" + sbuffer;
+          lastthrottle = THROTTLE;
+          nts = true;
         }
         if(Xbox.getButtonClick(0, B)) {
           //Serial.print(F(" - B"));
@@ -30,6 +37,14 @@ void scancontroller() {
         if(Xbox.getButtonClick(0, X)) {
           //Serial.print(F(" - X"));
           wheelPWMctr = wheelPWMctr - 2;
+        }
+        if(Xbox.getButtonClick(0, Y)) {
+          sbuffer = "Y1&" + sbuffer;
+          nts = true;
+        }
+        if(Xbox.getButtonClick(0, A)) {
+          sbuffer = "A1&" + sbuffer;
+          nts = true;
         }
         boolean printme = false;
         if(printme && (printtime < millis())) {
@@ -135,21 +150,26 @@ void scancontroller() {
       }
         
       if(Xbox.getButtonClick(0,XBOX)) {
-        if(cstate == 1){
-          cstate = 2;
-          ppmgo = true;
-          //Xbox.setLedOn(0, LED2);
-          Serial.println("cstate == 2");
-        } else if (cstate == 2) {
-          cstate = 3;
-          ppmgo = true;
-          //Xbox.setLedOn(0, LED3);
-          Serial.println("cstate == 3");
-        } else if (cstate == 3) {
-          cstate = 1;
-          ppmgo = false;
-          //Xbox.setLedOn(0, LED1);
-          Serial.println("cstate == 1");
+
+
+        boolean doCstate = false;
+        if(doCstate) {
+          if(cstate == 1){
+            cstate = 2;
+            ppmgo = true;
+            //Xbox.setLedOn(0, LED2);
+            Serial.println("cstate == 2");
+          } else if (cstate == 2) {
+            cstate = 3;
+            ppmgo = true;
+            //Xbox.setLedOn(0, LED3);
+            Serial.println("cstate == 3");
+          } else if (cstate == 3) {
+            cstate = 1;
+            ppmgo = false;
+            //Xbox.setLedOn(0, LED1);
+            Serial.println("cstate == 1");
+          }
         }
       }
 

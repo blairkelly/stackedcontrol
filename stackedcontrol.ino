@@ -51,5 +51,8 @@ void loop() {
       roast = true;
     }
   }
+  if(nts) {
+    sendsbuffer();
+  }
   delay(1); //recommended by Lauszus.
 }
