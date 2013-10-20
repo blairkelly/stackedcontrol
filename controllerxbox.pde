@@ -31,7 +31,7 @@ void scancontroller() {
           //Serial.print(F(" - X"));
           wheelPWMctr = wheelPWMctr - 2;
         }
-        boolean printme = true;
+        boolean printme = false;
         if(printme && (printtime < millis())) {
           Serial.print("THROTTLE: ");
           Serial.print(THROTTLE);
